@@ -1,6 +1,6 @@
 # Deploy Java Application on AWS 3-Tier Architecture - Full Guide
 **Lift and Shift Application Workload on AWS Cloud**
-![Architecture Diagram](./images/architecture.png)
+![Architecture Diagram](./images/architecture.jpg)
 
 Welcome to the project. This is an AWS cloud computing project. The name of this project is **Lift and Shift Application Workload**, where we are going to lift our application, **vprofile**, and shift it onto the AWS cloud.
 
