@@ -1,52 +1,14 @@
 # Deploy Java Application on AWS 3-Tier Architecture - Full Guide
 **Lift and Shift Application Workload on AWS Cloud**
-<p align="center">
-  <img src="images/architecture.jpg" alt="Architecture Diagram" width="400"/>
-</p>
 
-Welcome to the project. This is an AWS cloud computing project. The name of this project is **Lift and Shift Application Workload**, where we are going to lift our application, **vprofile**, and shift it onto the AWS cloud.
 
+Welcome to the project. This is an AWS cloud computing project.
 ---
 
 ## Project Overview
-In the previous project, we explored a multi-tier web application stack called **vprofile** using Vagrant. In this project, we will host and run it on **AWS cloud** for production using a **lift and shift strategy**.
+In this project, we will host and run a Java app on **AWS cloud** for production using a **lift and shift strategy**.
 
 After completing this project, you will learn how to run application workloads on AWS cloud using the **lift and shift strategy**.
-
----
-
-## Current Scenario
-Currently, our application services run on physical or virtual machines, including:
-
-- Databases: PostgreSQL, Oracle
-- Application servers: Tomcat, LAMP stack
-- DNS services
-- Various other services
-
-Managing these services in a local data center requires multiple teams:
-
-- Virtualization team
-- Data center operations team
-- Monitoring team
-- System administration team
-
-Challenges include:
-
-- Complexity in scaling up or down
-- High cost of resource procurement and maintenance
-- Time-consuming and mostly manual processes
-
----
-
-## Cloud Computing as a Solution
-Cloud computing provides:
-
-- **Flexibility and elasticity** to scale resources
-- **Pay-as-you-go model** to control costs
-- **Automation** to avoid human errors
-- Easier infrastructure management
-
-By adopting cloud computing, we reduce the complexity of managing multiple servers and teams.
 
 ---
 
@@ -73,10 +35,12 @@ Key AWS services in this project:
 
 ## Architectural Design
 
-![AWS 3-Tier Architecture](./lift.jpg)
+<p align="center">
+  <img src="images/architecture.jpg" alt="Architecture Diagram" width="400"/>
+</p>
 
 - Users access the website via a URL.
-- The URL points to an endpoint managed by **GoDaddy DNS**.
+- The URL points to an endpoint managed by **NameCheap DNS** .
 - **HTTPS** certificates are handled by ACM.
 - Requests are routed via the **Application Load Balancer** to Tomcat instances.
 - Tomcat instances run in an **Auto Scaling group**.
