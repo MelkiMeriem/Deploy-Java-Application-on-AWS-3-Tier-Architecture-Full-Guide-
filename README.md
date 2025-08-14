@@ -112,6 +112,7 @@ aws ec2 authorize-security-group-ingress \
 </pre>
 
 ---
+### 1 Create a security group for Tomcat instance :
 
 ## Key Takeaways
 - Demonstrates migrating a multi-tier web application to AWS using **lift and shift**
