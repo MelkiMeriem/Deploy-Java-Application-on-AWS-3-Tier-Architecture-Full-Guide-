@@ -78,7 +78,7 @@ Key AWS services in this project:
 
 
 
-
+# 1 Create a security group for Load Balancer :
 
 <pre>
   # Variables
