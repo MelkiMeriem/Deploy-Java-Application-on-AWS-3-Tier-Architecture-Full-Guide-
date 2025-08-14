@@ -78,18 +78,36 @@ Key AWS services in this project:
 
 
 
-# 1 Create a security group for Load Balancer :
+### 1 Create a security group for Load Balancer :
 
 <pre>
-  # Variables
-SG_NAME="alb-sg"
-VPC_ID=$(aws ec2 describe-vpcs --query "Vpcs[0].VpcId" --output text)
+# 1. Create the security group
+SG_ID=$(aws ec2 create-security-group \
+    --group-name JavaApp-LoadBalancer-Sg \
+    --description "Allow HTTP and HTTPS from IPv4 and IPv6" \
+    --vpc-id <your-vpc-id> \
+    --query 'GroupId' \
+    --output text)
 
-# Create SG
-aws ec2 create-security-group \
-    --group-name $SG_NAME \
-    --description "Security group for ALB allowing HTTP/HTTPS" \
-    --vpc-id $VPC_ID
+# 2. Add HTTP + HTTPS rules for IPv4 and IPv6 in one call
+aws ec2 authorize-security-group-ingress \
+    --group-id "$SG_ID" \
+    --ip-permissions '[
+        {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+            "Ipv6Ranges": [{"CidrIpv6": "::/0"}]
+        },
+        {
+            "IpProtocol": "tcp",
+            "FromPort": 443,
+            "ToPort": 443,
+            "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+            "Ipv6Ranges": [{"CidrIpv6": "::/0"}]
+        }
+    ]'
 
 </pre>
 
