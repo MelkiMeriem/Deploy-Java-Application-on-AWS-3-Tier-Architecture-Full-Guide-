@@ -71,6 +71,30 @@ Key AWS services in this project:
 
 ---
 
+
+
+
+
+
+
+
+
+
+<pre>
+  # Variables
+SG_NAME="alb-sg"
+VPC_ID=$(aws ec2 describe-vpcs --query "Vpcs[0].VpcId" --output text)
+
+# Create SG
+aws ec2 create-security-group \
+    --group-name $SG_NAME \
+    --description "Security group for ALB allowing HTTP/HTTPS" \
+    --vpc-id $VPC_ID
+
+</pre>
+
+---
+
 ## Key Takeaways
 - Demonstrates migrating a multi-tier web application to AWS using **lift and shift**
 - Shows usage of EC2, ELB, Auto Scaling, S3, Route 53, and ACM
