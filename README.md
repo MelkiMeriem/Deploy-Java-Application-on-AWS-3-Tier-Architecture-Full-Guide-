@@ -470,7 +470,7 @@ aws acm request-certificate \
     --validation-method DNS \
     --tags Key=Name,Value=example-cert
 ```
-### c) Get the DNS validation record : 
+### d) Get the DNS validation record : 
 ```bash
 aws acm describe-certificate \
     --certificate-arn <CERTIFICATE_ARN>
@@ -482,7 +482,7 @@ Value: _yyyyyyyyyyyy.acm-validations.aws
 ```
 ######These are the CNAME records needed for validation.
 #### Add this cname record to your domain provider ( NameCheap in my case )
-### c) Create the DNS validation record in Route 53  :
+### e) Create the DNS validation record in Route 53  :
 ```bash
 aws route53 change-resource-record-sets \
     --hosted-zone-id <HOSTED_ZONE_ID> \
@@ -501,12 +501,12 @@ aws route53 change-resource-record-sets \
     }'
 
 ```
-### c)Wait for validation  :
+### f) Wait for validation  :
 ```bash
 aws acm wait certificate-validated \
     --certificate-arn <CERTIFICATE_ARN>
 ```
-### c) Create HTTP listener (port 80) :
+### g) Create HTTP listener (port 80) :
 ```bash
 aws elbv2 create-listener \
     --load-balancer-arn <LOAD_BALANCER_ARN> \
@@ -515,15 +515,15 @@ aws elbv2 create-listener \
     --default-actions Type=forward,TargetGroupArn=<TARGET_GROUP_ARN>
 
 ```
-### d) Create HTTPS listener (port 443) with SSL certificate :
+### h) Create HTTPS listener (port 443) with SSL certificate :
 ```bash
 aws elbv2 create-listener \
     --load-balancer-arn <LOAD_BALANCER_ARN> \
     --protocol HTTPS \
     --port 443 \
-    --certificates CertificateArn=d1d4a29d-0afe-4147-8fb0-31daa326438a \
-    --ssl-policy ELBSecurityPolicy-TLS13-1-2-Res-2021-06 \
-    --default-actions Type=forward,TargetGroupArn=<TARGET_GROUP_ARN>
+    --certificates CertificateArn=<CERTIFICATE_ARN> \
+    --default-actions Type=forward,TargetGroupArn=<TARGET_GROUP_ARN> \
+    --ssl-policy ELBSecurityPolicy-TLS-1-2-2017-01
 
 ```
 
