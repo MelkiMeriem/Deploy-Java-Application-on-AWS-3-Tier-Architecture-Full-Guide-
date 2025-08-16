@@ -679,19 +679,19 @@ After deploying the Java application, you can verify access in three ways:
 ### b) Access via Load Balancer DNS (HTTP, Not Secure)
 - Use the Application Load Balancer DNS name over HTTP.
 - Traffic passes through ALB but is **not encrypted**.
-- Example URL: `http://<ALB_DNS_NAME>/`
+- Example URL: `Dans name of the load balancer`
 
 <p align="center">
-  <img src="images/architecture.jpg" alt="Architecture Diagram" width="520"/>
+  <img src="images/loadBalancer.png" alt="Architecture Diagram" width="520"/>
 </p>
 ---
 
 ### c) Access via Load Balancer DNS (HTTPS, Secure)
 - Use the ALB DNS name with HTTPS, secured by ACM certificate.
-- Example URL: `https://<ALB_DNS_NAME>/`
+- Example URL: `https:appname.domain.com`
 
 <p align="center">
-  <img src="images/architecture.jpg" alt="Architecture Diagram" width="520"/>
+  <img src="images/https.png" alt="Architecture Diagram" width="520"/>
 </p>
 > ✅ **Tip:** Always use the HTTPS URL in production for security.
 
