@@ -663,4 +663,37 @@ aws autoscaling create-auto-scaling-group \
   --vpc-zone-identifier "<SUBNET_ID_1>,<SUBNET_ID_2>" \
   --target-group-arns "<TARGET_GROUP_ARN>"
 ```
+## 8) Verification & Testing
 
+After deploying the Java application, you can verify access in three ways:
+
+### a) Access via Tomcat Public IP (Not Recommended)
+- Use the public IP of the Tomcat instance directly.
+- This does **not** use the load balancer or HTTPS.
+- Example URL: `http://<TOMCAT_PUBLIC_IP>:8080
+
+<p align="center">
+  <img src="images/architecture.jpg" alt="Architecture Diagram" width="520"/>
+</p>
+
+### b) Access via Load Balancer DNS (HTTP, Not Secure)
+- Use the Application Load Balancer DNS name over HTTP.
+- Traffic passes through ALB but is **not encrypted**.
+- Example URL: `http://<ALB_DNS_NAME>/`
+
+<p align="center">
+  <img src="images/architecture.jpg" alt="Architecture Diagram" width="520"/>
+</p>
+---
+
+### c) Access via Load Balancer DNS (HTTPS, Secure)
+- Use the ALB DNS name with HTTPS, secured by ACM certificate.
+- Example URL: `https://<ALB_DNS_NAME>/`
+
+<p align="center">
+  <img src="images/architecture.jpg" alt="Architecture Diagram" width="520"/>
+</p>
+> ✅ **Tip:** Always use the HTTPS URL in production for security.
+
+
+## 9) [Key Takeaways](#key-takeaways)
