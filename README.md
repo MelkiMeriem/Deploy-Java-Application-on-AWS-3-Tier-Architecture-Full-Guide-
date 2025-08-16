@@ -586,11 +586,34 @@ aws elbv2 create-listener \
 ## 9) Autoscaling Group
 ### a) Create an image of the tomcat instance :
 ```bash
+aws ec2 create-image \
+    --instance-id <INSTANCE_ID> \
+    --name "JavaApp-ami" \
+    --description "Application server AMI" \
+    --no-reboot
+
 ```
 ### b) Create a launch template :
 ```bash
+aws ec2 create-launch-template \
+  --launch-template-name JavaApp-LT \
+  --version-description "v1" \
+  --launch-template-data '{
+    "ImageId": "<AMI_ID>",
+    "InstanceType": "t2.micro",
+    "SecurityGroupIds": ["<SECURITY_GROUP_ID_Of_TOMCAT_Instance>"],
+    "KeyName": "<KEY_PAIR_NAME>"
+  }'
 ```
 ### c) Create an autoscaling group :
 ```bash
+aws autoscaling create-auto-scaling-group \
+  --auto-scaling-group-name JavaApp-ASG \
+  --launch-template "LaunchTemplateName=JavaApp-LT,Version=1" \
+  --min-size 2 \
+  --max-size 5 \
+  --desired-capacity 2 \
+  --vpc-zone-identifier "<SUBNET_ID_1>,<SUBNET_ID_2>" \
+  --target-group-arns "<TARGET_GROUP_ARN>"
 ```
 
