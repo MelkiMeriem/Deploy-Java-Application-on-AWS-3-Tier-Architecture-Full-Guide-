@@ -673,7 +673,7 @@ After deploying the Java application, you can verify access in three ways:
 - Example URL: `http://<TOMCAT_PUBLIC_IP>:8080
 
 <p align="center">
-  <img src="images/architecture.jpg" alt="Architecture Diagram" width="520"/>
+  <img src="images/http.png" alt="Architecture Diagram" width="520"/>
 </p>
 
 ### b) Access via Load Balancer DNS (HTTP, Not Secure)
