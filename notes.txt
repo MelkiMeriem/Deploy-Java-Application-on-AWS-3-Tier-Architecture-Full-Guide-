@@ -1,0 +1,2 @@
+aws ec2 describe-instances --instance-ids 'i-0f686248304b25695'
+aws ec2 describe-vpcs --vpc-ids 'vpc-008bd8b4e4ff5deec'  

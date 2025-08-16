@@ -412,7 +412,10 @@ aws route53 change-resource-record-sets \
 ```
 ## 7) Build and deploy artifact :
 
-
+### Architectural Design : 
+<p align="center">
+  <img src="images/s3.jpg" alt="Architecture Diagram" width="520"/>
+</p>
 ### a) Create an IAM user :
 ```bash
 # Create the IAM user
