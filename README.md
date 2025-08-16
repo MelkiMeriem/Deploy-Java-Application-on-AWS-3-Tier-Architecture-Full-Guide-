@@ -206,7 +206,7 @@ chmod 400 JavaAppKey.pem
 - Emphasizes security (least privilege), scalability, and automation.
 
 ---
-## 5) Launch 4 EC2 Instances 
+## 5) Launch 4 EC2 Instances
 
 ```bash
   # Variables
@@ -219,7 +219,7 @@ SUBNET_APP1="subnet-xxxxxx"
 SUBNET_APP2="subnet-xxxxxx"
 SUBNET_BE="subnet-xxxxxx"
 ```
-### a) Launch Tomcat instance : 
+### a) Launch Tomcat instance :
 ```bash
 # --- Launch Tomcat App Tier instances ---
 aws ec2 run-instances \
@@ -233,7 +233,7 @@ aws ec2 run-instances \
   --user-data file://tomcat-setup.sh
 ```
 
-#### tomcat-setup.sh : 
+#### tomcat-setup.sh :
 ```bash
 #!/bin/bash
 sudo apt update
@@ -242,7 +242,7 @@ sudo apt install openjdk-17-jdk -y
 sudo apt install tomcat10 tomcat10-admin tomcat10-docs tomcat10-common git -y
 
 ```
-### b) Launch MySQL instance : 
+### b) Launch MySQL instance :
 ```bash
 
 aws ec2 run-instances \
@@ -255,7 +255,7 @@ aws ec2 run-instances \
   --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-MySQL}]'
   --user-data file://MySQL-setup.sh
 ```
-#### MySQL-setup.sh : 
+#### MySQL-setup.sh :
 ```bash
 #!/bin/bash
 DATABASE_PASS='admin123'
@@ -281,7 +281,7 @@ sudo mysql -u root -p"$DATABASE_PASS" accounts < /tmp/vprofile-project/src/main/
 sudo mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
 
 ```
-### c) Launch Memcached instance : 
+### c) Launch Memcached instance :
 ```bash
   
 aws ec2 run-instances \
@@ -306,7 +306,7 @@ sudo systemctl restart memcached
 sudo memcached -p 11211 -U 11111 -u memcached -d
 
 ```
-### c) Launch RabbitMQ instance : 
+### c) Launch RabbitMQ instance :
 
 ```bash
   
@@ -346,7 +346,7 @@ rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
 sudo systemctl restart rabbitmq-server
 
 ```
-## 6) Create a Private Hosted Zone 
+## 6) Create a Private Hosted Zone
 ```bash
 aws route53 create-hosted-zone \
     --name example.com \
@@ -357,7 +357,7 @@ aws route53 create-hosted-zone \
 ## 7) Build and deploy artifact :
 
 
-### a) Create an IAM user : 
+### a) Create an IAM user :
 ```bash
 # Create the IAM user
 aws iam create-user --user-name vprofile-s3-admin
@@ -371,7 +371,7 @@ aws iam attach-user-policy \
     --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
 
 ```
-### b) Create an IAM role : 
+### b) Create an IAM role :
 ```bash
 # Create trust policy JSON
 echo '{
@@ -410,19 +410,19 @@ aws iam add-role-to-instance-profile \
 rm trust-policy.json
 
 ```
-### c) Build an artifact with Maven : 
+### c) Build an artifact with Maven :
 ###### You can use the vprofile java app existed in my repo .
 ```bash
 # go to your project directory , and run this command in the terminal :
 mvn clean install
 ```
-### d) Put the artifact in the S3 bucket : 
+### d) Put the artifact in the S3 bucket :
 ```bash
 aws configure
 #tap your Acces key and your Secret key .
 aws s3 mv /path/to/local/project.jar s3://your-bucket-name/ 
 ```
-### c) Open the Tomcat instance and deploy the artifcat : 
+### e) Open the Tomcat instance and deploy the artifcat :
 ```bash
 # Connect to your Tomcat server
 ssh ec2-user@<TOMCAT_SERVER_IP>
@@ -438,5 +438,28 @@ mv project.jar ROOT.war
 # Restart Tomcat to pick up the new artifact
 sudo systemctl restart tomcat
 
-
 ```
+## 8) Load Balancer and DNS :
+
+### a) Make a target group :
+```bash
+```
+### b) Create The Load Balancer :
+```bash
+```
+### c) Create a cname record :
+```bash
+```
+
+
+## 9) Autoscaling Group :
+### a) Create an image of the tomcat instance :
+```bash
+```
+### b) Create a launch template :
+```bash
+```
+### c) Create an autoscaling group : 
+```bash
+```
+
