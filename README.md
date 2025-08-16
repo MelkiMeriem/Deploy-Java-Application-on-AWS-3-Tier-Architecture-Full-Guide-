@@ -59,7 +59,7 @@ After completing this guide, you’ll understand how to run application workload
  [Project Objectives](#project-objectives)  
  [Architectural Design](#architectural-design)  
 
-5. [Prerequisites](#prerequisites)  
+ . [Prerequisites](#prerequisites)  
    - [AWS CLI configuration](#prerequisites)  
    - [VPC and subnets](#prerequisites)  
    - [Public IP for SSH](#prerequisites)  
