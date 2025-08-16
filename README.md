@@ -693,7 +693,21 @@ After deploying the Java application, you can verify access in three ways:
 <p align="center">
   <img src="images/https.png" alt="Architecture Diagram" width="520"/>
 </p>
-> ✅ **Tip:** Always use the HTTPS URL in production for security.
 
 
-## 9) [Key Takeaways](#key-takeaways)
+## 9) Key Takeaways
+
+- Demonstrates deploying a **multi-tier Java application** on AWS using a lift-and-shift approach.  
+- Shows how to configure **EC2 instances, security groups, and private hosted zones**.  
+- Illustrates **artifact management** with Maven and S3 for deployment.  
+- Implements a **secure and scalable architecture** using:
+  - Application Load Balancer (ALB)
+  - HTTPS with ACM certificates
+  - Auto Scaling for Tomcat instances  
+- Emphasizes **automation, infrastructure as code (IaC), and least-privilege security**.  
+- Highlights **multiple access methods**:
+  - Direct public IP (not recommended)
+  - HTTP via ALB
+  - HTTPS via ALB with ACM certificate (recommended)
+- Prepares you for **production-ready deployments** on AWS with secure, scalable, and automated workflows.
+
