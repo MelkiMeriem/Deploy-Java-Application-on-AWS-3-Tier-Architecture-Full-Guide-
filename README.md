@@ -52,17 +52,60 @@ After completing this guide, you’ll understand how to run application workload
 
 ---
 
-## Execution Flow
-1. Log into AWS.
-2. Create **key pair(s)** for EC2 SSH access.
-3. Create **security groups** for Load Balancer, Tomcat, and Backend.
-4. Launch EC2 instances with **user data**.
-5. Create private DNS records in Route 53.
-6. Build application locally and upload artifacts to S3.
-7. Deploy artifacts from S3 to Tomcat instances.
-8. Create an **Application Load Balancer** with HTTPS (ACM certs).
-9. Map the ALB DNS name in your public DNS (registrar).
-10. Create an **Auto Scaling Group** for Tomcat.
+# Index / Execution Flow
+
+1. [Project Overview](#project-overview)  
+2. [AWS Services Used](#aws-services-used)  
+3. [Project Objectives](#project-objectives)  
+4. [Architectural Design](#architectural-design)  
+
+5. [Prerequisites](#prerequisites)  
+   - [AWS CLI configuration](#prerequisites)  
+   - [VPC and subnets](#prerequisites)  
+   - [Public IP for SSH](#prerequisites)  
+   - [Domain name](#prerequisites)  
+   - [Export environment variables](#prerequisites)  
+
+6. [Security Groups Setup](#security-groups-setup)  
+   - [Load Balancer SG](#security-groups-setup)  
+   - [Tomcat/App SG](#security-groups-setup)  
+   - [Backend SG](#security-groups-setup)  
+
+7. [EC2 Key Pair](#ec2-key-pair)  
+
+8. [Launch EC2 Instances](#launch-ec2-instances)  
+   - [Tomcat App Tier](#launch-ec2-instances)  
+   - [MySQL Backend](#launch-ec2-instances)  
+   - [Memcached](#launch-ec2-instances)  
+   - [RabbitMQ](#launch-ec2-instances)  
+
+9. [Private Hosted Zone & DNS](#private-hosted-zone--dns)  
+   - [Create hosted zone](#private-hosted-zone--dns)  
+   - [Create A records](#private-hosted-zone--dns)  
+   - [Apply records](#private-hosted-zone--dns)  
+
+10. [Build & Deploy Artifact](#build--deploy-artifact)  
+    - [IAM user and role for S3](#build--deploy-artifact)  
+    - [Build with Maven](#build--deploy-artifact)  
+    - [Upload artifact to S3](#build--deploy-artifact)  
+    - [Deploy to Tomcat](#build--deploy-artifact)  
+
+11. [Load Balancer & ACM Configuration](#load-balancer--acm-configuration)  
+    - [Create target group](#load-balancer--acm-configuration)  
+    - [Create ALB](#load-balancer--acm-configuration)  
+    - [Request ACM certificate](#load-balancer--acm-configuration)  
+    - [DNS validation](#load-balancer--acm-configuration)  
+    - [HTTP and HTTPS listeners](#load-balancer--acm-configuration)  
+
+12. [Auto Scaling Group Setup](#auto-scaling-group-setup)  
+    - [Create AMI from Tomcat](#auto-scaling-group-setup)  
+    - [Create launch template](#auto-scaling-group-setup)  
+    - [Create ASG](#auto-scaling-group-setup)  
+
+13. [Verification & Testing](#verification--testing)  
+
+14. [Key Takeaways](#key-takeaways)
+
 
 ---
 # Prerequisites
