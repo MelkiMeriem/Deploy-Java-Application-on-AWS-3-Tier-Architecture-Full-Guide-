@@ -218,15 +218,7 @@ SUBNET_APP1="subnet-xxxxxx"
 SUBNET_APP2="subnet-xxxxxx"
 SUBNET_BE="subnet-xxxxxx"
 
-# --- Launch Load Balancer instance (optional testing only) ---
-aws ec2 run-instances \
-  --image-id "$AMI_ID" \
-  --count 1 \
-  --instance-type t3.micro \
-  --key-name "$KEY_NAME" \
-  --security-group-ids "$SG_LB_ID" \
-  --subnet-id "$SUBNET_LB" \
-  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-LB}]'
+
 
 # --- Launch Tomcat App Tier instances ---
 aws ec2 run-instances \
@@ -237,15 +229,8 @@ aws ec2 run-instances \
   --security-group-ids "$SG_APP_ID" \
   --subnet-id "$SUBNET_APP1" \
   --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-Tomcat-1}]'
+  --user-data file://tomcat-setup.sh
 
-aws ec2 run-instances \
-  --image-id "$AMI_ID" \
-  --count 1 \
-  --instance-type t3.micro \
-  --key-name "$KEY_NAME" \
-  --security-group-ids "$SG_APP_ID" \
-  --subnet-id "$SUBNET_APP2" \
-  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-Tomcat-2}]'
 
 # --- Launch Backend instance (MySQL, Memcached, RabbitMQ) ---
 aws ec2 run-instances \
@@ -255,7 +240,30 @@ aws ec2 run-instances \
   --key-name "$KEY_NAME" \
   --security-group-ids "$SG_BE_ID" \
   --subnet-id "$SUBNET_BE" \
-  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-Backend}]'
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-MySQL}]'
+  --user-data file://tomcat-setup.sh
+
+  
+aws ec2 run-instances \
+  --image-id "$AMI_ID" \
+  --count 1 \
+  --instance-type t3.micro \
+  --key-name "$KEY_NAME" \
+  --security-group-ids "$SG_BE_ID" \
+  --subnet-id "$SUBNET_BE" \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-mq}]'
+  --user-data file://memcache-setup.sh
+
+  
+aws ec2 run-instances \
+  --image-id "$AMI_ID" \
+  --count 1 \
+  --instance-type t3.micro \
+  --key-name "$KEY_NAME" \
+  --security-group-ids "$SG_BE_ID" \
+  --subnet-id "$SUBNET_BE" \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-rmq}]'
+  --user-data file://rabbitmqt-setup.sh
 
 </pre>
 ## Next Steps (Optional)
