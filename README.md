@@ -439,27 +439,61 @@ mv project.jar ROOT.war
 sudo systemctl restart tomcat
 
 ```
-## 8) Load Balancer and DNS :
+## 8) Load Balancer and DNS 
 
 ### a) Make a target group :
 ```bash
+aws elbv2 create-target-group \
+      --name JavaApp-tg \
+    --protocol HTTP \
+    --port 80 \
+    --vpc-id <yout-vpc-id> \
+    --target-type instance \
+    --health-check-protocol HTTP \
+    --health-check-port 80 \
+    --health-check-path /
 ```
 ### b) Create The Load Balancer :
 ```bash
+aws elbv2 create-load-balancer \
+    --name JavaApp-elb \
+    --subnets subnet-0c6cc0c6bb9d19d6e subnet-0b2ec8e01612c4b99 subnet-0931ccb6861b28e61 subnet-04697938f795e023e subnet-0d5c1083a14596ea3 subnet-0bf676b6afe129174 \
+    --scheme internet-facing \
+    --type application \
+    --ip-address-type ipv4
 ```
-### c) Create a cname record :
+### c) Create HTTP listener (port 80) :
 ```bash
 ```
+### c) Create HTTP listener (port 80) :
+```bash
+aws elbv2 create-listener \
+    --load-balancer-arn <LOAD_BALANCER_ARN> \
+    --protocol HTTP \
+    --port 80 \
+    --default-actions Type=forward,TargetGroupArn=<TARGET_GROUP_ARN>
 
+```
+### d) Create HTTPS listener (port 443) with SSL certificate :
+```bash
+aws elbv2 create-listener \
+    --load-balancer-arn <LOAD_BALANCER_ARN> \
+    --protocol HTTPS \
+    --port 443 \
+    --certificates CertificateArn=d1d4a29d-0afe-4147-8fb0-31daa326438a \
+    --ssl-policy ELBSecurityPolicy-TLS13-1-2-Res-2021-06 \
+    --default-actions Type=forward,TargetGroupArn=<TARGET_GROUP_ARN>
 
-## 9) Autoscaling Group :
+```
+
+## 9) Autoscaling Group
 ### a) Create an image of the tomcat instance :
 ```bash
 ```
 ### b) Create a launch template :
 ```bash
 ```
-### c) Create an autoscaling group : 
+### c) Create an autoscaling group :
 ```bash
 ```
 
