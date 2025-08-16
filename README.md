@@ -219,7 +219,7 @@ SUBNET_APP1="subnet-xxxxxx"
 SUBNET_APP2="subnet-xxxxxx"
 SUBNET_BE="subnet-xxxxxx"
 ```
-# a) Launch Tomcat instance : 
+## a) Launch Tomcat instance : 
 ```bash
 # --- Launch Tomcat App Tier instances ---
 aws ec2 run-instances \
@@ -233,7 +233,7 @@ aws ec2 run-instances \
   --user-data file://tomcat-setup.sh
 ```
 
-# tomcat-setup.sh : 
+### tomcat-setup.sh : 
 ```bash
 #!/bin/bash
 sudo apt update
@@ -242,7 +242,7 @@ sudo apt install openjdk-17-jdk -y
 sudo apt install tomcat10 tomcat10-admin tomcat10-docs tomcat10-common git -y
 
 ```
-# b) Launch MySQL instance : 
+## b) Launch MySQL instance : 
 ```bash
 
 aws ec2 run-instances \
@@ -255,7 +255,7 @@ aws ec2 run-instances \
   --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-MySQL}]'
   --user-data file://MySQL-setup.sh
 ```
-# MySQL-setup.sh : 
+### MySQL-setup.sh : 
 ```bash
 #!/bin/bash
 DATABASE_PASS='admin123'
@@ -281,7 +281,7 @@ sudo mysql -u root -p"$DATABASE_PASS" accounts < /tmp/vprofile-project/src/main/
 sudo mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
 
 ```
-# c) Launch Memcached instance : 
+## c) Launch Memcached instance : 
 ```bash
   
 aws ec2 run-instances \
@@ -294,7 +294,7 @@ aws ec2 run-instances \
   --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-mq}]'
   --user-data file://memcache-setup.sh
 ```
-# memcache-setup.sh :
+### memcache-setup.sh :
 ```bash
 #!/bin/bash
 sudo dnf install memcached -y
@@ -306,7 +306,7 @@ sudo systemctl restart memcached
 sudo memcached -p 11211 -U 11111 -u memcached -d
 
 ```
-# c) Launch RabbitMQ instance : 
+## c) Launch RabbitMQ instance : 
 
 ```bash
   
@@ -321,7 +321,7 @@ aws ec2 run-instances \
   --user-data file://rabbitmqt-setup.sh
 
 ```
-# rabbitmqt-setup.sh :
+### rabbitmqt-setup.sh :
 ```bash
 #!/bin/bash
 ## primary RabbitMQ signing key
