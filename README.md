@@ -65,11 +65,11 @@ After completing this guide, you’ll understand how to run application workload
 10. Create an **Auto Scaling Group** for Tomcat.
 
 ---
-
 # Prerequisites
 - AWS CLI configured with appropriate permissions
 - VPC and subnets created
 - Your workstation’s public IP (for SSH)
+- A domain name (you can purchase one from any registrar, or if you are a student, check the [GitHub Student Developer Pack](https://education.github.com/pack) for free domain options)
 
 For convenience, export a few variables you’ll reuse:
 
@@ -77,6 +77,7 @@ For convenience, export a few variables you’ll reuse:
 export AWS_REGION=<your-aws-region>
 export VPC_ID=<your-vpc-id>
 export MY_IPv4_CIDR=<your-public-ipv4>/32   # e.g., 203.0.113.45/32
+
 ```
 
 > Replace placeholders like `<your-vpc-id>` with your actual values before running commands.
