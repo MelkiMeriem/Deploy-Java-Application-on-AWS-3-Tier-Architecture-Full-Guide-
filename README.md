@@ -355,6 +355,21 @@ aws route53 create-hosted-zone \
     --hosted-zone-config Comment="Private example.com zone",PrivateZone=true
 ```
 ## 7) Build and deploy artifact :
+
+
 ### a) Create an IAM user : 
+```bash
+# Create the IAM user
+aws iam create-user --user-name vprofile-s3-admin
+
+# Create access keys
+aws iam create-access-key --user-name vprofile-s3-admin
+
+# Attach AmazonS3FullAccess policy
+aws iam attach-user-policy \
+    --user-name vprofile-s3-admin \
+    --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
+
+```
 ### b) Create an IAM role : 
 ### c) Build an artifact with Maven : 
