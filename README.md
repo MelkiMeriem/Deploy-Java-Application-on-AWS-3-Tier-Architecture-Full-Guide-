@@ -1,225 +1,214 @@
-# Deploy Java Application on AWS 3-Tier Architecture - Full Guide
+# Deploy Java Application on AWS 3‑Tier Architecture – Full Guide
 **Lift and Shift Application Workload on AWS Cloud**
 
+Welcome! This project walks through hosting and running a Java application on **AWS** using a **lift‑and‑shift strategy** suitable for production.
 
-Welcome to the project. This is an AWS cloud computing project.
 ---
 
 ## Project Overview
-In this project, we will host and run a Java app on **AWS cloud** for production using a **lift and shift strategy**.
+You will provision a classic three‑tier stack (Load Balancer → App → Backend) and deploy a Java web app on EC2.
 
-After completing this project, you will learn how to run application workloads on AWS cloud using the **lift and shift strategy**.
+After completing this guide, you’ll understand how to run application workloads on AWS using a lift‑and‑shift approach and how to secure and automate the core building blocks.
 
 ---
 
 ## AWS Services Used
-Key AWS services in this project:
-
-- **EC2 instances**: For Tomcat, RabbitMQ, Memcache, and MySQL servers
-- **Elastic Load Balancer (ELB)**: To distribute traffic
-- **Auto Scaling**: To automatically scale EC2 instances
-- **S3 / EFS**: For storage
-- **Route 53**: Private DNS service
-- **ACM (Amazon Certificate Manager)**: For HTTPS certificates
-- **IAM and EBS**: Additional supporting services
+- **EC2 instances**: Tomcat (app tier), RabbitMQ, Memcached, MySQL (backend tier)
+- **Elastic Load Balancer (ALB)**: Fronts the app tier
+- **Auto Scaling**: Scales Tomcat instances
+- **S3 / EFS**: Artifact or shared storage
+- **Route 53**: Private DNS
+- **ACM (AWS Certificate Manager)**: HTTPS certificates
+- **IAM & EBS**: Supporting services
 
 ---
 
 ## Project Objectives
-- Achieve a flexible infrastructure
-- Adopt a **pay-as-you-go** model
-- Modernize the application using AWS services
-- Implement **automation and infrastructure as code**
+- Flexible, scalable infrastructure
+- **Pay‑as‑you‑go** cost model
+- Modernize via managed AWS services
+- Emphasize **automation & IaC**
 
 ---
 
 ## Architectural Design
-
 <p align="center">
-  <img src="images/architecture.jpg" alt="Architecture Diagram" width="400"/>
+  <img src="images/architecture.jpg" alt="Architecture Diagram" width="520"/>
 </p>
 
-- Users access the website via a URL.
-- The URL points to an endpoint managed by **NameCheap DNS** .
-- **HTTPS** certificates are handled by ACM.
-- Requests are routed via the **Application Load Balancer** to Tomcat instances.
-- Tomcat instances run in an **Auto Scaling group**.
-- Backend servers (MySQL, Memcache, RabbitMQ) use **Route 53 private DNS zones**.
-- Security groups are segregated for load balancer, application, and backend servers.
+- Users access a public URL (managed by your registrar/DNS provider, e.g., Namecheap).
+- **ACM** issues TLS certificates; HTTPS terminates at the **Application Load Balancer**.
+- The ALB routes requests to **Tomcat** instances in an **Auto Scaling Group** across subnets/AZs.
+- Backend services (MySQL, Memcached, RabbitMQ) are reachable via **Route 53 private hosted zone** names.
+- Security groups are separated for **Load Balancer**, **Application**, and **Backend** tiers.
 
 ---
 
 ## AWS Resources in Use
-- **Amazon Certificate Manager**: SSL certificates
-- **EC2 instances**: Tomcat, Memcache, RabbitMQ, MySQL
-- **Amazon Route 53**: Private DNS zones
-- **Amazon S3**: Artifact storage
+- **ACM** for SSL/TLS
+- **EC2**: Tomcat, Memcached, RabbitMQ, MySQL
+- **Route 53**: Private DNS
+- **S3**: Artifact storage (WARs, configs, etc.)
 
 ---
 
 ## Execution Flow
-1. Log into AWS account
-2. Create **key pairs** for EC2 login
-3. Create **security groups** for load balancer, Tomcat, and backend
-4. Launch EC2 instances with **user data scripts**
-5. Update IP-to-name mappings in Route 53
-6. Build application locally and upload to S3
-7. Download artifact from S3 to Tomcat instances
-8. Set up **Application Load Balancer** with HTTPS
-9. Map load balancer to website in GoDaddy DNS
-10. Build **Auto Scaling group** for Tomcat
+1. Log into AWS.
+2. Create **key pair(s)** for EC2 SSH access.
+3. Create **security groups** for Load Balancer, Tomcat, and Backend.
+4. Launch EC2 instances with **user data**.
+5. Create private DNS records in Route 53.
+6. Build application locally and upload artifacts to S3.
+7. Deploy artifacts from S3 to Tomcat instances.
+8. Create an **Application Load Balancer** with HTTPS (ACM certs).
+9. Map the ALB DNS name in your public DNS (registrar).
+10. Create an **Auto Scaling Group** for Tomcat.
 
 ---
 
+# Prerequisites
+- AWS CLI configured with appropriate permissions
+- VPC and subnets created
+- Your workstation’s public IP (for SSH)
 
+For convenience, export a few variables you’ll reuse:
 
+```bash
+export AWS_REGION=<your-aws-region>
+export VPC_ID=<your-vpc-id>
+export MY_IPv4_CIDR=<your-public-ipv4>/32   # e.g., 203.0.113.45/32
+```
 
-
-
-
-
-### 1 Create a security group for Load Balancer :
-
-<pre>
-# 1. Create the security group
-SG_ID=$(aws ec2 create-security-group \
-    --group-name JavaApp-LoadBalancer-Sg \
-    --description "Allow HTTP and HTTPS from IPv4 and IPv6" \
-    --vpc-id <your-vpc-id> \
-    --query 'GroupId' \
-    --output text)
-
-# 2. Add HTTP + HTTPS rules for IPv4 and IPv6 in one call
-aws ec2 authorize-security-group-ingress \
-    --group-id "$SG_ID" \
-    --ip-permissions '[
-        {
-            "IpProtocol": "tcp",
-            "FromPort": 80,
-            "ToPort": 80,
-            "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-            "Ipv6Ranges": [{"CidrIpv6": "::/0"}]
-        },
-        {
-            "IpProtocol": "tcp",
-            "FromPort": 443,
-            "ToPort": 443,
-            "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-            "Ipv6Ranges": [{"CidrIpv6": "::/0"}]
-        }
-    ]'
-
-</pre>
+> Replace placeholders like `<your-vpc-id>` with your actual values before running commands.
 
 ---
-### 2 Create a security group for Tomcat instance :
-<pre>
-  # 1. Create the security group
-aws ec2 create-security-group \
-    --group-name JavaApp-Tomcat-Sg \
-    --description "Security group with inbound rules for SSH, HTTP, and custom TCP" \
-    --vpc-id vpc-xxxxxxxx
-# 2. Authorize inbound rules
 
-# SSH from your IP
+## 1) Create the Security Group for the **Load Balancer**
+Allows HTTP/HTTPS from anywhere over IPv4 and IPv6.
+
+```bash
+# Create
+SG_LB_ID=$(aws ec2 create-security-group \
+  --group-name JavaApp-LoadBalancer-SG \
+  --description "Allow HTTP and HTTPS from IPv4 and IPv6" \
+  --vpc-id "$VPC_ID" \
+  --query 'GroupId' --output text)
+
+# (Optional) Tag it
+aws ec2 create-tags --resources "$SG_LB_ID" \
+  --tags Key=Name,Value=JavaApp-LoadBalancer-SG
+
+# Ingress: 80/443 from everywhere (IPv4 + IPv6)
 aws ec2 authorize-security-group-ingress \
-    --group-name my-secgroup \
-    --protocol tcp \
-    --port 22 \
-    --cidr <your ip>
+  --group-id "$SG_LB_ID" \
+  --ip-permissions '[
+    {"IpProtocol":"tcp","FromPort":80,"ToPort":80,
+     "IpRanges":[{"CidrIp":"0.0.0.0/0"}],
+     "Ipv6Ranges":[{"CidrIpv6":"::/0"}]},
+    {"IpProtocol":"tcp","FromPort":443,"ToPort":443,
+     "IpRanges":[{"CidrIp":"0.0.0.0/0"}],
+     "Ipv6Ranges":[{"CidrIpv6":"::/0"}]}
+  ]'
+```
 
-# HTTP from your IP
+---
+
+## 2) Create the Security Group for the **Tomcat (App Tier)**
+Allows SSH from your IP, app ports from the ALB SG (preferred), and optional HTTP/8080 for testing.
+
+```bash
+# Create
+SG_APP_ID=$(aws ec2 create-security-group \
+  --group-name JavaApp-Tomcat-SG \
+  --description "Tomcat app tier" \
+  --vpc-id "$VPC_ID" \
+  --query 'GroupId' --output text)
+
+aws ec2 create-tags --resources "$SG_APP_ID" \
+  --tags Key=Name,Value=JavaApp-Tomcat-SG
+
+# Ingress rules
+# - SSH from your workstation
+# - 80/8080 from ALB SG (secure) – swap SG_LB_ID below after creation
+# - (Optional) 8080 from 0.0.0.0/0 for quick tests – remove in production
+
 aws ec2 authorize-security-group-ingress \
-    --group-name my-secgroup \
-    --protocol tcp \
-    --port 80 \
-    --cidr <your ip>
+  --group-id "$SG_APP_ID" \
+  --ip-permissions "[
+    {\"IpProtocol\":\"tcp\",\"FromPort\":22,\"ToPort\":22,
+     \"IpRanges\":[{\"CidrIp\":\"$MY_IPv4_CIDR\"}]},
+    {\"IpProtocol\":\"tcp\",\"FromPort\":80,\"ToPort\":80,
+     \"UserIdGroupPairs\":[{\"GroupId\":\"$SG_LB_ID\"}]},
+    {\"IpProtocol\":\"tcp\",\"FromPort\":8080,\"ToPort\":8080,
+     \"UserIdGroupPairs\":[{\"GroupId\":\"$SG_LB_ID\"}]}
+  ]"
 
-# Custom TCP 8080 from your IP
+# (Optional – testing only)
+# aws ec2 authorize-security-group-ingress \
+#   --group-id "$SG_APP_ID" --protocol tcp --port 8080 --cidr 0.0.0.0/0
+```
+
+---
+
+## 3) Create the Security Group for the **Backend Tier**
+Allows specific service ports from the app SG, SSH from your IP, and self‑reference for internal clustering/sync.
+
+```bash
+# Create
+SG_BE_ID=$(aws ec2 create-security-group \
+  --group-name JavaApp-Backend-SG \
+  --description "Backend: MySQL, Memcached, RabbitMQ" \
+  --vpc-id "$VPC_ID" \
+  --query 'GroupId' --output text)
+
+aws ec2 create-tags --resources "$SG_BE_ID" \
+  --tags Key=Name,Value=JavaApp-Backend-SG
+
+# Ingress: MySQL(3306), Memcached(11211), RabbitMQ(5672) from APP SG; SSH from your IP; self-ref for node-to-node traffic
 aws ec2 authorize-security-group-ingress \
-    --group-name my-secgroup \
-    --protocol tcp \
-    --port 8080 \
-    --cidr <your ip>
+  --group-id "$SG_BE_ID" \
+  --ip-permissions "[
+    {\"IpProtocol\":\"tcp\",\"FromPort\":3306,\"ToPort\":3306,
+     \"UserIdGroupPairs\":[{\"GroupId\":\"$SG_APP_ID\"}]},
+    {\"IpProtocol\":\"tcp\",\"FromPort\":11211,\"ToPort\":11211,
+     \"UserIdGroupPairs\":[{\"GroupId\":\"$SG_APP_ID\"}]},
+    {\"IpProtocol\":\"tcp\",\"FromPort\":5672,\"ToPort\":5672,
+     \"UserIdGroupPairs\":[{\"GroupId\":\"$SG_APP_ID\"}]},
+    {\"IpProtocol\":\"tcp\",\"FromPort\":22,\"ToPort\":22,
+     \"IpRanges\":[{\"CidrIp\":\"$MY_IPv4_CIDR\"}]},
+    {\"IpProtocol\":\"-1\",\"UserIdGroupPairs\":[{\"GroupId\":\"$SG_BE_ID\"}]}
+  ]"
+```
 
-# Custom TCP 8080 from anywhere (0.0.0.0/0)
-aws ec2 authorize-security-group-ingress \
-    --group-name my-secgroup \
-    --protocol tcp \
-    --port 8080 \
-    --cidr 0.0.0.0/0
+> Note: Granting **All traffic** from the app SG to the backend SG is not recommended when you already open the specific ports. Keep access least‑privileged.
 
-# Custom TCP 8080 from another Security Group (Load Balancer SG)
-aws ec2 authorize-security-group-ingress \
-    --group-name JavaApp-LoadBalancer-Sg \
-    --protocol tcp \
-    --port 8080 \
-    --source-group <The id of loadbalancer sg>
+---
 
-</pre>
-### 3 Create a security group for Backend instance :
+## 4) Create an **EC2 Key Pair**
+Use this key to SSH into instances.
 
-<pre>
-  # 1. Create security group
-aws ec2 create-security-group \
-  --group-name JavaApp-backend-SG \
-  --description "JavaApp-backend-SG for mysql, memcached, rabbitMQ" \
-  --vpc-id <<your-vpc-id>
-# 2. Add inbound rules
-
-# Allow all traffic from app security group
-aws ec2 authorize-security-group-ingress \
-  --group-id sg-xxxxxxxxxx \
-  --protocol -1 \
-  --source-group <The id of tomcat sg >
-
-# Allow MySQL from app security group
-aws ec2 authorize-security-group-ingress \
-  --group-id sg-xxxxxxxxxx \
-  --protocol tcp \
-  --port 3306 \
-  --source-group <The id of tomcat sg >
-
-# Allow SSH from your IP
-aws ec2 authorize-security-group-ingress \
-  --group-id sg-xxxxxxxxxx \
-  --protocol tcp \
-  --port 22 \
-  --cidr <your ip >
-
-# Allow RabbitMQ (5672) from app security group
-aws ec2 authorize-security-group-ingress \
-  --group-id sg-xxxxxxxxxx \
-  --protocol tcp \
-  --port 5672 \
-  --source-group <The id of tomcat sg >
-
-# Allow backend-to-backend communication (self reference)
-aws ec2 authorize-security-group-ingress \
-  --group-id sg-xxxxxxxxxx \
-  --protocol -1 \
-  --source-group <The id of backend sg >
-
-# Allow Memcached (11211) from app security group
-aws ec2 authorize-security-group-ingress \
-  --group-id sg-xxxxxxxxxx \
-  --protocol tcp \
-  --port 11211 \
-  --source-group <The id of tomcat sg >
-
-</pre>
-
-### 4 Create a security group for Backend instance :
-
-<pre>
-  aws ec2 create-key-pair \
-  --key-name my-keypair \
+```bash
+aws ec2 create-key-pair \
+  --key-name JavaAppKey \
   --query 'KeyMaterial' \
-  --output text > my-keypair.pem
+  --output text > JavaAppKey.pem
 
-</pre>
+chmod 400 JavaAppKey.pem
+```
+
+> Save the `.pem` securely. You can’t re‑download it later.
+
+---
+
 ## Key Takeaways
-- Demonstrates migrating a multi-tier web application to AWS using **lift and shift**
-- Shows usage of EC2, ELB, Auto Scaling, S3, Route 53, and ACM
-- Highlights advantages of cloud computing: flexibility, scalability, cost control, and automation
-- Architecture involves **segregated security groups** and DNS management via Route 53
+- Demonstrates migrating a multi‑tier web application to AWS with **segregated security groups**.
+- Uses EC2, ALB, Auto Scaling, S3, Route 53, and ACM.
+- Emphasizes security (least privilege), scalability, and automation.
+
+---
+
+## Next Steps (Optional)
+- Create target groups and an ALB listener (HTTP→HTTPS redirect, 443 with ACM cert).
+- Create a Launch Template and Auto Scaling Group for Tomcat, attaching `JavaApp-Tomcat-SG`.
+- Add Route 53 records (public: ALB; private: backend service names).
+- Store artifacts in S3 and automate deployments (e.g., via CodeDeploy, Ansible, or user data).
