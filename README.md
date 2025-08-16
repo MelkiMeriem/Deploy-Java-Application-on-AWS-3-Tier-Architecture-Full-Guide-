@@ -346,3 +346,12 @@ rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
 sudo systemctl restart rabbitmq-server
 
 ```
+## 6) Create a Private Hosted Zone 
+```bash
+aws route53 create-hosted-zone \
+    --name example.com \
+    --caller-reference "$(date +%s)" \
+    --vpc VPCRegion=<YOUR_REGION>,VPCId=<YOUR_VPC_ID> \
+    --hosted-zone-config Comment="Private example.com zone",PrivateZone=true
+```
+
