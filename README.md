@@ -126,8 +126,8 @@ export MY_IPv4_CIDR=<your-public-ipv4>/32   # e.g., 203.0.113.45/32
 > Replace placeholders like `<your-vpc-id>` with your actual values before running commands.
 
 ---
-
-## 1) Create the Security Group for the **Load Balancer**
+## 1) Create Security groups 
+### a) Create the Security Group for the **Load Balancer**
 Allows HTTP/HTTPS from anywhere over IPv4 and IPv6.
 
 ```bash
@@ -157,7 +157,7 @@ aws ec2 authorize-security-group-ingress \
 
 ---
 
-## 2) Create the Security Group for the **Tomcat (App Tier)**
+### b) Create the Security Group for the **Tomcat (App Tier)**
 Allows SSH from your IP, app ports from the ALB SG (preferred), and optional HTTP/8080 for testing.
 
 ```bash
@@ -194,7 +194,7 @@ aws ec2 authorize-security-group-ingress \
 
 ---
 
-## 3) Create the Security Group for the **Backend Tier**
+### c) Create the Security Group for the **Backend Tier**
 Allows specific service ports from the app SG, SSH from your IP, and self‑reference for internal clustering/sync.
 
 ```bash
@@ -228,7 +228,7 @@ aws ec2 authorize-security-group-ingress \
 
 ---
 
-## 4) Create an **EC2 Key Pair**
+## 2) Create an **EC2 Key Pair**
 Use this key to SSH into instances.
 
 ```bash
@@ -250,7 +250,7 @@ chmod 400 JavaAppKey.pem
 - Emphasizes security (least privilege), scalability, and automation.
 
 ---
-## 5) Launch 4 EC2 Instances
+## 3) Launch 4 EC2 Instances
 
 ```bash
   # Variables
@@ -390,7 +390,7 @@ rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
 sudo systemctl restart rabbitmq-server
 
 ```
-## 6) Create a Private Hosted Zone
+## 4) Create a Private Hosted Zone
 ### a) Create a private hosted zone
 ```bash
 aws route53 create-hosted-zone \
@@ -454,7 +454,7 @@ aws route53 change-resource-record-sets \
     --change-batch file://records.json
 
 ```
-## 7) Build and deploy artifact :
+## 5) Build and deploy artifact :
 
 ### Architectural Design : 
 <p align="center">
@@ -542,7 +542,7 @@ mv project.jar ROOT.war
 sudo systemctl restart tomcat
 
 ```
-## 8) Load Balancer and DNS 
+## 6) Load Balancer and DNS 
 
 ### a) Make a target group :
 ```bash
@@ -630,7 +630,7 @@ aws elbv2 create-listener \
 
 ```
 
-## 9) Autoscaling Group
+## 7) Autoscaling Group
 ### a) Create an image of the tomcat instance :
 ```bash
 aws ec2 create-image \
