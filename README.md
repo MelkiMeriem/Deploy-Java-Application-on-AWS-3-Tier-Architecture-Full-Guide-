@@ -372,4 +372,48 @@ aws iam attach-user-policy \
 
 ```
 ### b) Create an IAM role : 
+```bash
+# Create trust policy JSON
+echo '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}' > trust-policy.json
+
+# Create the IAM role
+aws iam create-role \
+    --role-name s3-admin \
+    --assume-role-policy-document file://trust-policy.json \
+    --description "Allows EC2 instances to call AWS services on your behalf"
+
+# Attach AmazonS3FullAccess policy
+aws iam attach-role-policy \
+    --role-name s3-admin \
+    --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
+
+# Create instance profile
+aws iam create-instance-profile --instance-profile-name s3-admin
+
+# 5Add role to instance profile
+aws iam add-role-to-instance-profile \
+    --instance-profile-name s3-admin \
+    --role-name s3-admin
+
+# Cleanup temporary trust policy file
+rm trust-policy.json
+
+```
 ### c) Build an artifact with Maven : 
+###### You can use the vprofile java app existed in my repo .
+```bash
+# go to your project directory , and run this command in the terminal :
+mvn clean install
+
+```
