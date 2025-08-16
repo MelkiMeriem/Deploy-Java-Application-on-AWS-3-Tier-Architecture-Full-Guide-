@@ -460,9 +460,10 @@ aws route53 change-resource-record-sets \
 <p align="center">
   <img src="images/s3.jpg" alt="Architecture Diagram" width="520"/>
 </p>
+
 ### a) Create an IAM user :
 ```bash
-# Create the IAM user
+#Create the IAM user
 aws iam create-user --user-name vprofile-s3-admin
 
 # Create access keys
