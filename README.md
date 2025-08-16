@@ -206,7 +206,58 @@ chmod 400 JavaAppKey.pem
 - Emphasizes security (least privilege), scalability, and automation.
 
 ---
+## 5) Launch EC2 Instances 
+<pre>
+  # Variables
+AMI_ID="ami-0c02fb55956c7d316"       # Amazon Linux 2 (update for your region)
+KEY_NAME="JavaAppKey"
 
+# Subnets (replace with your subnet IDs)
+SUBNET_LB="subnet-xxxxxx"
+SUBNET_APP1="subnet-xxxxxx"
+SUBNET_APP2="subnet-xxxxxx"
+SUBNET_BE="subnet-xxxxxx"
+
+# --- Launch Load Balancer instance (optional testing only) ---
+aws ec2 run-instances \
+  --image-id "$AMI_ID" \
+  --count 1 \
+  --instance-type t3.micro \
+  --key-name "$KEY_NAME" \
+  --security-group-ids "$SG_LB_ID" \
+  --subnet-id "$SUBNET_LB" \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-LB}]'
+
+# --- Launch Tomcat App Tier instances ---
+aws ec2 run-instances \
+  --image-id "$AMI_ID" \
+  --count 1 \
+  --instance-type t3.micro \
+  --key-name "$KEY_NAME" \
+  --security-group-ids "$SG_APP_ID" \
+  --subnet-id "$SUBNET_APP1" \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-Tomcat-1}]'
+
+aws ec2 run-instances \
+  --image-id "$AMI_ID" \
+  --count 1 \
+  --instance-type t3.micro \
+  --key-name "$KEY_NAME" \
+  --security-group-ids "$SG_APP_ID" \
+  --subnet-id "$SUBNET_APP2" \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-Tomcat-2}]'
+
+# --- Launch Backend instance (MySQL, Memcached, RabbitMQ) ---
+aws ec2 run-instances \
+  --image-id "$AMI_ID" \
+  --count 1 \
+  --instance-type t3.micro \
+  --key-name "$KEY_NAME" \
+  --security-group-ids "$SG_BE_ID" \
+  --subnet-id "$SUBNET_BE" \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-Backend}]'
+
+</pre>
 ## Next Steps (Optional)
 - Create target groups and an ALB listener (HTTP→HTTPS redirect, 443 with ACM cert).
 - Create a Launch Template and Auto Scaling Group for Tomcat, attaching `JavaApp-Tomcat-SG`.
