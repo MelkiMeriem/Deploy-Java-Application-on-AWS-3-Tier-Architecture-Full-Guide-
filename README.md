@@ -347,7 +347,7 @@ sudo systemctl restart rabbitmq-server
 
 ```
 ## 6) Create a Private Hosted Zone
-
+### a) Create a private hosted zone
 ```bash
 aws route53 create-hosted-zone \
     --name example.com \
@@ -355,7 +355,9 @@ aws route53 create-hosted-zone \
     --vpc VPCRegion=us-east-1,VPCId=vpc-xxxxxxxx \
     --hosted-zone-config Comment="Private example.com zone",PrivateZone=true
 ```
+### b) Create A records in that hosted zone
 ```bash
+
 cat > records.json <<EOL
 {
   "Comment": "Create A records for example.com",
@@ -401,6 +403,7 @@ cat > records.json <<EOL
 EOL
 
 ```
+### c) Apply the records to the hosted zone
 ```bash
 aws route53 change-resource-record-sets \
     --hosted-zone-id <HOSTED_ZONE_ID> \
