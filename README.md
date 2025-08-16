@@ -354,4 +354,7 @@ aws route53 create-hosted-zone \
     --vpc VPCRegion=<YOUR_REGION>,VPCId=<YOUR_VPC_ID> \
     --hosted-zone-config Comment="Private example.com zone",PrivateZone=true
 ```
-
+## 7) Build and deploy artifact :
+### a) Create an IAM user : 
+### b) Create an IAM role : 
+### c) Build an artifact with Maven : 
