@@ -5,7 +5,7 @@ Welcome! This project walks through hosting and running a Java application on **
 
 ---
 
-## Project Overview
+## Project Overview [Project Overview]
 You will provision a classic three‑tier stack (Load Balancer → App → Backend) and deploy a Java web app on EC2.
 
 After completing this guide, you’ll understand how to run application workloads on AWS using a lift‑and‑shift approach and how to secure and automate the core building blocks.
