@@ -415,5 +415,28 @@ rm trust-policy.json
 ```bash
 # go to your project directory , and run this command in the terminal :
 mvn clean install
+```
+### d) Put the artifact in the S3 bucket : 
+```bash
+aws configure
+#tap your Acces key and your Secret key .
+aws s3 mv /path/to/local/project.jar s3://your-bucket-name/ 
+```
+### c) Open the Tomcat instance and deploy the artifcat : 
+```bash
+# Connect to your Tomcat server
+ssh ec2-user@<TOMCAT_SERVER_IP>
+
+# Navigate to the Tomcat webapps directory
+cd /path/to/tomcat/webapps
+# Download the artifact from S3
+aws s3 cp s3://your-bucket-name/project.jar .
+
+# Deploy by renaming to ROOT.war (if you want it as the default app)
+mv project.jar ROOT.war
+
+# Restart Tomcat to pick up the new artifact
+sudo systemctl restart tomcat
+
 
 ```
