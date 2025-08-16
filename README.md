@@ -112,7 +112,7 @@ aws ec2 authorize-security-group-ingress \
 </pre>
 
 ---
-### 1 Create a security group for Tomcat instance :
+### 2 Create a security group for Tomcat instance :
 <pre>
   # 1. Create the security group
 aws ec2 create-security-group \
@@ -155,6 +155,57 @@ aws ec2 authorize-security-group-ingress \
     --protocol tcp \
     --port 8080 \
     --source-group <The id of loadbalancer sg>
+
+</pre>
+### 3 Create a security group for Backend instance :
+
+<pre>
+  # 1. Create security group
+aws ec2 create-security-group \
+  --group-name JavaApp-backend-SG \
+  --description "JavaApp-backend-SG for mysql, memcached, rabbitMQ" \
+  --vpc-id <<your-vpc-id>
+# 2. Add inbound rules
+
+# Allow all traffic from app security group
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-xxxxxxxxxx \
+  --protocol -1 \
+  --source-group <The id of tomcat sg >
+
+# Allow MySQL from app security group
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-xxxxxxxxxx \
+  --protocol tcp \
+  --port 3306 \
+  --source-group <The id of tomcat sg >
+
+# Allow SSH from your IP
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-xxxxxxxxxx \
+  --protocol tcp \
+  --port 22 \
+  --cidr <your ip >
+
+# Allow RabbitMQ (5672) from app security group
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-xxxxxxxxxx \
+  --protocol tcp \
+  --port 5672 \
+  --source-group <The id of tomcat sg >
+
+# Allow backend-to-backend communication (self reference)
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-xxxxxxxxxx \
+  --protocol -1 \
+  --source-group <The id of backend sg >
+
+# Allow Memcached (11211) from app security group
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-xxxxxxxxxx \
+  --protocol tcp \
+  --port 11211 \
+  --source-group <The id of tomcat sg >
 
 </pre>
 
