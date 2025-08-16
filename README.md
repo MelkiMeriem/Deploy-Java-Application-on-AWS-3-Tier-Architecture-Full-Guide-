@@ -347,12 +347,65 @@ sudo systemctl restart rabbitmq-server
 
 ```
 ## 6) Create a Private Hosted Zone
+
 ```bash
 aws route53 create-hosted-zone \
     --name example.com \
     --caller-reference "$(date +%s)" \
-    --vpc VPCRegion=<YOUR_REGION>,VPCId=<YOUR_VPC_ID> \
+    --vpc VPCRegion=us-east-1,VPCId=vpc-xxxxxxxx \
     --hosted-zone-config Comment="Private example.com zone",PrivateZone=true
+```
+```bash
+cat > records.json <<EOL
+{
+  "Comment": "Create A records for example.com",
+  "Changes": [
+    {
+      "Action": "CREATE",
+      "ResourceRecordSet": {
+        "Name": "app01.example.com",
+        "Type": "A",
+        "TTL": 300,
+        "ResourceRecords": [{"Value": "10.0.1.10"}]
+      }
+    },
+    {
+      "Action": "CREATE",
+      "ResourceRecordSet": {
+        "Name": "db01.example.com",
+        "Type": "A",
+        "TTL": 300,
+        "ResourceRecords": [{"Value": "10.0.1.20"}]
+      }
+    },
+    {
+      "Action": "CREATE",
+      "ResourceRecordSet": {
+        "Name": "mc01.example.com",
+        "Type": "A",
+        "TTL": 300,
+        "ResourceRecords": [{"Value": "10.0.1.30"}]
+      }
+    },
+    {
+      "Action": "CREATE",
+      "ResourceRecordSet": {
+        "Name": "rmq01.example.com",
+        "Type": "A",
+        "TTL": 300,
+        "ResourceRecords": [{"Value": "10.0.1.40"}]
+      }
+    }
+  ]
+}
+EOL
+
+```
+```bash
+aws route53 change-resource-record-sets \
+    --hosted-zone-id <HOSTED_ZONE_ID> \
+    --change-batch file://records.json
+
 ```
 ## 7) Build and deploy artifact :
 
