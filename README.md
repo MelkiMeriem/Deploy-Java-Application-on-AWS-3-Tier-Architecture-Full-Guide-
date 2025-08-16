@@ -480,7 +480,7 @@ aws acm describe-certificate \
 Name: _xxxxxxxxxxxx.example.com
 Value: _yyyyyyyyyyyy.acm-validations.aws
 ```
-######These are the CNAME records needed for validation.
+###### These are the CNAME records needed for validation.
 #### Add this cname record to your domain provider ( NameCheap in my case )
 ### e) Create the DNS validation record in Route 53  :
 ```bash
