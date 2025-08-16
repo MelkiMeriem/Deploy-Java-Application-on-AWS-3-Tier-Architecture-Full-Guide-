@@ -368,7 +368,7 @@ cat > records.json <<EOL
         "Name": "app01.example.com",
         "Type": "A",
         "TTL": 300,
-        "ResourceRecords": [{"Value": "10.0.1.10"}]
+        "ResourceRecords": [{"Value": "Private ip of the Tomcat instance"}]
       }
     },
     {
@@ -377,7 +377,7 @@ cat > records.json <<EOL
         "Name": "db01.example.com",
         "Type": "A",
         "TTL": 300,
-        "ResourceRecords": [{"Value": "10.0.1.20"}]
+        "ResourceRecords": [{"Value": "Private ip of the MySQL instance"}]
       }
     },
     {
@@ -386,7 +386,7 @@ cat > records.json <<EOL
         "Name": "mc01.example.com",
         "Type": "A",
         "TTL": 300,
-        "ResourceRecords": [{"Value": "10.0.1.30"}]
+        "ResourceRecords": [{"Value": "Private ip of the MemeCache instance"}]
       }
     },
     {
@@ -395,7 +395,7 @@ cat > records.json <<EOL
         "Name": "rmq01.example.com",
         "Type": "A",
         "TTL": 300,
-        "ResourceRecords": [{"Value": "10.0.1.40"}]
+        "ResourceRecords": [{"Value": "Private ip of the RabbitMQ instance"}]
       }
     }
   ]
