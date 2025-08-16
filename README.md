@@ -209,6 +209,15 @@ aws ec2 authorize-security-group-ingress \
 
 </pre>
 
+### 4 Create a security group for Backend instance :
+
+<pre>
+  aws ec2 create-key-pair \
+  --key-name my-keypair \
+  --query 'KeyMaterial' \
+  --output text > my-keypair.pem
+
+</pre>
 ## Key Takeaways
 - Demonstrates migrating a multi-tier web application to AWS using **lift and shift**
 - Shows usage of EC2, ELB, Auto Scaling, S3, Route 53, and ACM
