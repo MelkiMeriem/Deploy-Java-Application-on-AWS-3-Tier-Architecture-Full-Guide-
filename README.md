@@ -113,6 +113,50 @@ aws ec2 authorize-security-group-ingress \
 
 ---
 ### 1 Create a security group for Tomcat instance :
+<pre>
+  # 1. Create the security group
+aws ec2 create-security-group \
+    --group-name JavaApp-Tomcat-Sg \
+    --description "Security group with inbound rules for SSH, HTTP, and custom TCP" \
+    --vpc-id vpc-xxxxxxxx
+# 2. Authorize inbound rules
+
+# SSH from your IP
+aws ec2 authorize-security-group-ingress \
+    --group-name my-secgroup \
+    --protocol tcp \
+    --port 22 \
+    --cidr <your ip>
+
+# HTTP from your IP
+aws ec2 authorize-security-group-ingress \
+    --group-name my-secgroup \
+    --protocol tcp \
+    --port 80 \
+    --cidr <your ip>
+
+# Custom TCP 8080 from your IP
+aws ec2 authorize-security-group-ingress \
+    --group-name my-secgroup \
+    --protocol tcp \
+    --port 8080 \
+    --cidr <your ip>
+
+# Custom TCP 8080 from anywhere (0.0.0.0/0)
+aws ec2 authorize-security-group-ingress \
+    --group-name my-secgroup \
+    --protocol tcp \
+    --port 8080 \
+    --cidr 0.0.0.0/0
+
+# Custom TCP 8080 from another Security Group (Load Balancer SG)
+aws ec2 authorize-security-group-ingress \
+    --group-name JavaApp-LoadBalancer-Sg \
+    --protocol tcp \
+    --port 8080 \
+    --source-group <The id of loadbalancer sg>
+
+</pre>
 
 ## Key Takeaways
 - Demonstrates migrating a multi-tier web application to AWS using **lift and shift**
