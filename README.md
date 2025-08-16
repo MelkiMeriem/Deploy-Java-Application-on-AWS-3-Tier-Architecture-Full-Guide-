@@ -207,7 +207,7 @@ chmod 400 JavaAppKey.pem
 
 ---
 ## 5) Launch EC2 Instances 
-<pre>
+```bash
   # Variables
 AMI_ID="ami-0c02fb55956c7d316"       # Amazon Linux 2 (update for your region)
 KEY_NAME="JavaAppKey"
@@ -218,8 +218,8 @@ SUBNET_APP1="subnet-xxxxxx"
 SUBNET_APP2="subnet-xxxxxx"
 SUBNET_BE="subnet-xxxxxx"
 
-
-
+---
+```bash
 # --- Launch Tomcat App Tier instances ---
 aws ec2 run-instances \
   --image-id "$AMI_ID" \
@@ -265,9 +265,4 @@ aws ec2 run-instances \
   --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=JavaApp-rmq}]'
   --user-data file://rabbitmqt-setup.sh
 
-</pre>
-## Next Steps (Optional)
-- Create target groups and an ALB listener (HTTP→HTTPS redirect, 443 with ACM cert).
-- Create a Launch Template and Auto Scaling Group for Tomcat, attaching `JavaApp-Tomcat-SG`.
-- Add Route 53 records (public: ALB; private: backend service names).
-- Store artifacts in S3 and automate deployments (e.g., via CodeDeploy, Ansible, or user data).
+---
