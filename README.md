@@ -466,11 +466,45 @@ aws elbv2 create-load-balancer \
 
 ```bash
 aws acm request-certificate \
-    --domain-name "*.meriem.me" \
+    --domain-name "*.example.com" \
     --validation-method DNS \
-    --subject-alternative-names "*.meriem.me" \
-    --tags Key=Name,Value=meriem.me
+    --tags Key=Name,Value=example-cert
+```
+### c) Get the DNS validation record : 
+```bash
+aws acm describe-certificate \
+    --certificate-arn <CERTIFICATE_ARN>
+```
+#### Look for
+```bash
+Name: _xxxxxxxxxxxx.example.com
+Value: _yyyyyyyyyyyy.acm-validations.aws
+```
+######These are the CNAME records needed for validation.
+#### Add this cname record to your domain provider ( NameCheap in my case )
+### c) Create the DNS validation record in Route 53  :
+```bash
+aws route53 change-resource-record-sets \
+    --hosted-zone-id <HOSTED_ZONE_ID> \
+    --change-batch '{
+      "Changes": [
+        {
+          "Action": "CREATE",
+          "ResourceRecordSet": {
+            "Name": "_xxxxxxxxxxxx.example.com",
+            "Type": "CNAME",
+            "TTL": 300,
+            "ResourceRecords": [{"Value": "_yyyyyyyyyyyy.acm-validations.aws"}]
+          }
+        }
+      ]
+    }'
 
+```
+### c)Wait for validation  :
+```bash
+aws acm wait certificate-validated \
+    --certificate-arn <CERTIFICATE_ARN>
 ```
 ### c) Create HTTP listener (port 80) :
 ```bash
