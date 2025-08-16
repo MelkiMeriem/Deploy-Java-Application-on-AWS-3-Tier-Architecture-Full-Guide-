@@ -462,8 +462,15 @@ aws elbv2 create-load-balancer \
     --type application \
     --ip-address-type ipv4
 ```
-### c) Create HTTP listener (port 80) :
+### c) Create an ACM certificate  :
+
 ```bash
+aws acm request-certificate \
+    --domain-name "*.meriem.me" \
+    --validation-method DNS \
+    --subject-alternative-names "*.meriem.me" \
+    --tags Key=Name,Value=meriem.me
+
 ```
 ### c) Create HTTP listener (port 80) :
 ```bash
